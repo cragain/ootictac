@@ -7,25 +7,25 @@
 
 
 class Board
-
+ 
   def initialize
     @boarddata = {}
     (1..9).each{|position| @boarddata[position] = Square.new('')}
   end
   
   def draw
-    puts "Here comes your fresh board!......"
-   
-     
+    system 'clear'
+    puts
     puts "   #{@boarddata[1].value} | #{@boarddata[2].value} | #{@boarddata[3].value} "
     puts "------------"
     puts "   #{@boarddata[4].value} | #{@boarddata[5].value} | #{@boarddata[6].value} "
     puts "------------"
     puts "   #{@boarddata[7].value} | #{@boarddata[8].value} | #{@boarddata[9].value} "
+    puts
   end
   
   def empty_spaces
-    @boarddata.select {|k, s| s.value == ('')}.values
+    @boarddata.select {|k, s| s.value == ''}.values
   end
   
   def all_squares_marked
@@ -37,7 +37,7 @@ class Board
   end
   
   def empty_positions
-    @boarddata.select {|k, s| !s.empty?}.keys
+    @boarddata.select {|_, square| square.empty?}.keys
   end
 end
 
@@ -71,17 +71,16 @@ class Player
 end
 
 class Game
-  attr_accessor :human, :computer, :name
-  
+ 
   def initialize
     @board = Board.new
     @chris = Player.new("Chris", "X")
     @computer = Player.new("Megatron", "O")
-    @current_player = @human
+    @current_player = @chris
   end
   
   def current_player_takes_turn
-    if @current_player == @human
+    if @current_player == @chris
       begin
         puts "Choose a position 1-9"
         position = gets.chomp.to_i
@@ -93,10 +92,10 @@ class Game
   end
   
   def alternate_player
-    if @current_player == @human
-        @current_player = @computer
+    if @current_player == @chris
+      @current_player = @computer
     else
-      @current_player = @human
+      @current_player = @chris
     end
   end
   
@@ -104,8 +103,8 @@ class Game
     @board.draw
     loop do
       current_player_takes_turn
+       @board.draw
       alternate_player
-      
     end
   end
 end
