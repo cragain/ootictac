@@ -4,13 +4,22 @@
 # 4) if not winners, game is over if all squares have been played
 # 5) Offer to play again
 
-
+require 'pry'
 
 class Board
  
   def initialize
     @boarddata = {}
     (1..9).each{|position| @boarddata[position] = Square.new('')}
+  end
+
+  WINNING_LINES = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,5,9], [1,5,9], [3,5,7]]
+  
+  def winning_set(marker)
+    WINNING_LINES.each do |line|
+      return true if @boarddata[line[0]].value == marker && @boarddata[line[1]].value == marker && @boarddata[line[2]].value == marker
+    end
+    false
   end
   
   def draw
@@ -42,7 +51,7 @@ class Board
 end
 
 class Square
-  attr_accessor :value
+  attr_reader :value
 
   def initialize(value)
     @value = value
@@ -52,17 +61,13 @@ class Square
     @value = marker
   end
   
-  def occupied?
-    @value != ''
-  end
-  
   def empty?
-    @value = ''
+    @value == ''
   end
 end
 
 class Player
-  attr_accessor :name, :marker
+  attr_reader :name, :marker
   
   def initialize(name, marker)
     @name = name
@@ -82,13 +87,17 @@ class Game
   def current_player_takes_turn
     if @current_player == @chris
       begin
-        puts "Choose a position 1-9"
+        puts "Choose a position #{@board.empty_positions}"
         position = gets.chomp.to_i
       end until @board.empty_positions.include?(position)
     else
       position = @board.empty_positions.sample
     end
     @board.mark_square(position, @current_player.marker)
+  end
+  
+  def current_player_win?
+    @board.winning_set(@current_player.marker)
   end
   
   def alternate_player
@@ -103,10 +112,16 @@ class Game
     @board.draw
     loop do
       current_player_takes_turn
-       @board.draw
+      @board.draw
+      if current_player_win?
+        puts "And the winner is #{@current_player.name}"
+        break
+      elsif @board.all_squares_marked
+        puts "Its a Tie"
+      else
       alternate_player
+      end
     end
   end
 end
-
 Game.new.play
